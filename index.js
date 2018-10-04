@@ -445,7 +445,7 @@ function flameGraph (opts) {
     if (width < 1) return
 
     if (state === STATE_HOVER || state === STATE_UNHOVER) {
-      context.clearRect(x, y, width, c)
+      context.clearRect(x, y + verticalGap, width, c - verticalGap)
     }
 
     // Draw heat.
@@ -502,11 +502,13 @@ function flameGraph (opts) {
   }
 
   function renderLabel (context, node, x, y, width) {
+    var spaceForText = c - verticalGap
+
     context.save()
     context.beginPath()
     context.rect(x, y, width, c)
     context.clip()
-    context.font = c > 20 ? `16px ${fontFamily}` : `12px ${fontFamily}`
+    context.font = spaceForText > 20 ? `16px ${fontFamily}` : `12px ${fontFamily}`
     context.fillStyle = labelColors[node.data.type] || labelColors.default
 
     var labelOffset = 4 // padding
@@ -518,7 +520,7 @@ function flameGraph (opts) {
 
     // Magic value to sorta kinda align the label in the middle of the frame height
     // It's not very accurate
-    var btmOffset = Math.floor((c - 16) / 2)
+    var btmOffset = Math.floor((spaceForText - 16) / 2)
     var label = labelName(node)
     context.fillText(label, x + labelOffset, y + c - btmOffset)
 
