@@ -51,6 +51,8 @@ function flameGraph (opts) {
   var heatBars = opts.heatBars || false
   var labelColors = opts.labelColors || { default: '#000' }
   var frameColors = opts.frameColors || { fill: '#fff', stroke: 'rgba(0, 0, 0, 0.7)' }
+  var verticalGap = opts.verticalGap || 0
+
   var scaleToWidth = null
   var scaleToGraph = null
   var panZoom = d3.zoom().on('zoom', function () {
@@ -477,7 +479,7 @@ function flameGraph (opts) {
     context.strokeStyle = strokeColor
 
     context.beginPath()
-    context.rect(x, y, width, c)
+    context.rect(x, y + verticalGap, width, c - verticalGap)
     if (state === STATE_HOVER) {
       context.save()
       context.globalAlpha = 0.8
