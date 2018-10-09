@@ -52,6 +52,7 @@ function flameGraph (opts) {
   var labelColors = opts.labelColors || { default: '#000' }
   var frameColors = opts.frameColors || { fill: '#fff', stroke: 'rgba(0, 0, 0, 0.7)' }
   var verticalGap = opts.verticalGap || 0
+  var strokeWidth = typeof opts.strokeWidth !== 'undefined' ? opts.strokeWidth : 1 // Can pass 0
 
   var scaleToWidth = null
   var scaleToGraph = null
@@ -474,6 +475,7 @@ function flameGraph (opts) {
         ? (typeof node.data.highlight === 'string' ? node.data.highlight : '#e600e6')
         : fillColor
     context.strokeStyle = strokeColor
+    context.lineWidth = strokeWidth
 
     context.beginPath()
     context.rect(x, y + verticalGap, width, c - verticalGap)
@@ -487,10 +489,11 @@ function flameGraph (opts) {
     }
 
     if (heatBars) {
+      var lineTop = y + verticalGap
       context.beginPath()
-      context.moveTo(x, y)
+      context.moveTo(x, lineTop)
       context.lineTo(x, y + c)
-      context.moveTo(x + width, y)
+      context.moveTo(x + width, lineTop)
       context.lineTo(x + width, y + c)
       context.stroke()
     } else {
@@ -543,12 +546,13 @@ function flameGraph (opts) {
   function renderHeatBar (context, node, x, y, width) {
     var heatColor = colorHash(node.data, undefined, allSamples, tiers)
     var heatStrokeColor = colorHash(node.data, 1.1, allSamples, tiers)
-    var heatHeight = Math.floor(c / 3)
+    var heatHeight = Math.floor(c / 3 - strokeWidth)
 
     context.fillStyle = heatColor
     context.strokeStyle = heatStrokeColor
+    context.lineWidth = strokeWidth
     context.beginPath()
-    context.rect(x, y - heatHeight, width, heatHeight)
+    context.rect(x, y - heatHeight, width, heatHeight + verticalGap)
     context.fill()
     context.stroke()
   }
