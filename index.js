@@ -36,7 +36,7 @@ var STATE_IDLE = 0
 var STATE_HOVER = 1
 var STATE_UNHOVER = 2
 
-const HEAT_HEIGHT = 5
+var FONT_FAMILY = 'Verdana, sans-serif'
 
 function flameGraph (opts) {
   var tree = opts.tree
@@ -71,9 +71,6 @@ function flameGraph (opts) {
   var focusedFrame = null
   var hoverFrame = null
   var currentAnimation = null
-
-  var fontFamily = getComputedStyle(element)
-    .getPropertyValue('font-family')
 
   // Use custom coloring function if one has been passed in
   if (opts.colorHash) colorHash = (d, decimalAdjust, allSamples, tiers) => {
@@ -504,11 +501,20 @@ function flameGraph (opts) {
   function renderLabel (context, node, x, y, width) {
     var spaceForText = c - verticalGap
 
+    // baseline size of 12px—for every ~3px that cellHeight grows above its baseline of 18px,
+    // grow the font size 1px
+    // This way the font size gets relatively smaller, giving it some breathing room at larger cell heights
+    // while also being readable at small cell heights
+    // NOTE this currently does NOT deal with cell heights below 18px, but then nothing in d3-fg really does
+    var labelFontSize = Math.floor(12 + (spaceForText - 18) * 0.3)
+    var stackFontSize = Math.floor(labelFontSize * 10 / 12)
+
     context.save()
     context.beginPath()
     context.rect(x, y, width, c)
     context.clip()
-    context.font = spaceForText > 20 ? `16px ${fontFamily}` : `12px ${fontFamily}`
+
+    context.font = `${labelFontSize}px ${FONT_FAMILY}`
     context.fillStyle = labelColors[node.data.type] || labelColors.default
 
     var labelOffset = 4 // padding
@@ -527,7 +533,7 @@ function flameGraph (opts) {
     var stack = labelStack(node)
     if (stack) {
       var nameWidth = context.measureText(label + ' ').width
-      context.font = c > 20 ? `12px ${fontFamily}` : `10px ${fontFamily}`
+      context.font = `${stackFontSize}px ${FONT_FAMILY}`
       context.fillText(stack, x + labelOffset + nameWidth, y + c - btmOffset)
     }
 
@@ -537,11 +543,12 @@ function flameGraph (opts) {
   function renderHeatBar (context, node, x, y, width) {
     var heatColor = colorHash(node.data, undefined, allSamples, tiers)
     var heatStrokeColor = colorHash(node.data, 1.1, allSamples, tiers)
+    var heatHeight = Math.floor(c / 3)
 
     context.fillStyle = heatColor
     context.strokeStyle = heatStrokeColor
     context.beginPath()
-    context.rect(x, y - HEAT_HEIGHT, width, HEAT_HEIGHT)
+    context.rect(x, y - heatHeight, width, heatHeight)
     context.fill()
     context.stroke()
   }
